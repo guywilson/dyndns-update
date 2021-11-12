@@ -10,8 +10,9 @@ password=$3
 cachelocation=$homedir/.ipaddr
 cachefile=${cachelocation}/ipcache
 
-#username=guywilson
-#password=e04b0ee27040705f4123b90aaa3fbfc081554269561180341ae51f9f9fb6c0d3
+TIMESTAMP=$(date)
+
+printf "\nRunning ip update script at $TIMESTAMP\n"
 
 ipdiscoveryurl=https://www.ipchicken.com
 
