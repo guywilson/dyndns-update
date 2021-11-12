@@ -1,14 +1,21 @@
 #!/bin/bash
+#
+# Script to update the dynamic ip address, taken from www.ipchicken.com
+# to the dynu.com DDNS server.
+#
+homedir=$1
+username=$2
+password=$3
+
+cachelocation=$homedir/.ipaddr
+cachefile=${cachelocation}/ipcache
+
+#username=guywilson
+#password=e04b0ee27040705f4123b90aaa3fbfc081554269561180341ae51f9f9fb6c0d3
 
 ipdiscoveryurl=https://www.ipchicken.com
 
 ipregex="(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-
-username=guywilson
-password=e04b0ee27040705f4123b90aaa3fbfc081554269561180341ae51f9f9fb6c0d3
-
-cachelocation=~/.ipaddr
-cachefile=${cachelocation}/ipaddr.txt
 
 printf "Cached file: $cachefile\n"
 
@@ -39,6 +46,8 @@ if test -f "$cachefile"; then
 else
     mkdir -p "$cachelocation"
     printf "$publicip\n" > $cachefile
+
+    updateip=yes
 fi
 
 if [ "$updateip" = "yes" ]; then
