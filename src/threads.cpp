@@ -62,19 +62,49 @@ void * IPDiscoveryThread::run()
 	const char *	pszUpdateBase;
 	const char *	pszUsername;
 	const char *	pszPassword;
+	char 			szFrequencyStr[64];
+	unsigned long	frequency;
 	string			response;
 	string			updateResponse;
 	regex 			r("(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
 	smatch 			m;
 	FILE *			fpCache;
 
+	PosixThread::TimeUnit	frequencyUnit;
+
 	Logger & log = Logger::getInstance();
 	ConfigManager & cfg = ConfigManager::getInstance();
+
+	strcpy(szFrequencyStr, cfg.getValue("ip.checkfreq"));
+
+	if (str_endswith(szFrequencyStr, "H") || str_endswith(szFrequencyStr, "h")) {
+		frequencyUnit = PosixThread::hours;
+		frequency = (unsigned long)strtol(szFrequencyStr, NULL, 10);
+
+		log.logDebug("Update frequency read as %ld hours", frequency);
+	}
+	else if (str_endswith(szFrequencyStr, "M") || str_endswith(szFrequencyStr, "m")) {
+		frequencyUnit = PosixThread::minutes;
+		frequency = (unsigned long)strtol(szFrequencyStr, NULL, 10);
+
+		log.logDebug("Update frequency read as %ld minutes", frequency);
+	}
+	else if (str_endswith(szFrequencyStr, "S") || str_endswith(szFrequencyStr, "s")) {
+		frequencyUnit = PosixThread::seconds;
+		frequency = (unsigned long)strtol(szFrequencyStr, NULL, 10);
+
+		log.logDebug("Update frequency read as %ld seconds", frequency);
+	}
+	else {
+		log.logStatus("Update frequency unit unsupported for value %s, defaulting to 5 minutes", szFrequencyStr);
+		frequencyUnit = PosixThread::minutes;
+		frequency = 5;
+	}
 
 	pszUsername = cfg.getValue("update.username");
 	pszPassword = cfg.getValue("update.password");
 
-	pszUpdateBase = "https://api.dynu.com/nic/update?username=%s&myip=%s&password=%s";
+	pszUpdateBase = cfg.getValue("update.baseurl");;
 
 	pszUpdateURL = (char *)malloc(strlen(pszUpdateBase) + strlen(pszUsername) + strlen(pszPassword) + 16);
 
@@ -181,7 +211,7 @@ void * IPDiscoveryThread::run()
 			log.logFatal("IP address not found in response from IP discovery service");
 		}
 
-		PosixThread::sleep(PosixThread::minutes, 5);
+		PosixThread::sleep(frequencyUnit, frequency);
 	}
 
 	free(pszUpdateURL);
