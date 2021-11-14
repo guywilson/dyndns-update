@@ -10,9 +10,6 @@ password=$3
 cachelocation=$homedir/.ipaddr
 cachefile=${cachelocation}/ipcache
 
-#username=guywilson
-#password=e04b0ee27040705f4123b90aaa3fbfc081554269561180341ae51f9f9fb6c0d3
-
 ipdiscoveryurl=https://www.ipchicken.com
 
 ipregex="(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
