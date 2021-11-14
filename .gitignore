@@ -4,3 +4,5 @@
 ipaddr
 ipaddr.pid
 .vscode/c_cpp_properties.json
+ipaddr.cache
+ipaddr.log

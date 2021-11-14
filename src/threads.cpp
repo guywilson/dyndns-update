@@ -55,7 +55,9 @@ void ThreadManager::killThreads()
 void * IPDiscoveryThread::run()
 {
 	bool			go = true;
+	bool			updateDNS = false;
 	char			szIPAddr[32];
+	char			szCachedIP[32];
 	char *			pszUpdateURL;
 	const char *	pszUpdateBase;
 	const char *	pszUsername;
@@ -64,6 +66,7 @@ void * IPDiscoveryThread::run()
 	string			updateResponse;
 	regex 			r("(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
 	smatch 			m;
+	FILE *			fpCache;
 
 	Logger & log = Logger::getInstance();
 	ConfigManager & cfg = ConfigManager::getInstance();
@@ -110,28 +113,73 @@ void * IPDiscoveryThread::run()
 			sprintf(pszUpdateURL, pszUpdateBase, pszUsername, szIPAddr, pszPassword);
 
 			log.logDebug("Update IP url = %s", pszUpdateURL);
-		}
 
-		curl = curl_easy_init();
+			fpCache = fopen(cfg.getValue("cache.filename"), "rt");
 
-		if (curl) {
-			curl_easy_setopt(curl, CURLOPT_URL, pszUpdateURL);
-			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.42.0");
-			curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
-			curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-			
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlGet_CallbackFunc);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &updateResponse);
+			if (fpCache == NULL) {
+				/*
+				** Cache file does not exist, let's create it...
+				*/
+				fpCache = fopen(cfg.getValue("cache.filename"), "wt");
+
+				if (fpCache == NULL) {
+					log.logFatal(
+						"Failed to create cache file %s with error %s", 
+						cfg.getValue("cache.filename"), 
+						strerror(errno));
+
+					exit(-1);
+				}
+
+				fwrite(szIPAddr, 1, strlen(szIPAddr), fpCache);
+				fwrite("\n", 1, 1, fpCache);
+
+				fclose(fpCache);
+
+				updateDNS = true;
+			}
+			else {
+				fgets(szCachedIP, 32, fpCache);
+				fclose(fpCache);
+
+				char * pszCachedIP = str_trim_trailing(szCachedIP);
+
+				log.logStatus("Cached IP address read as %s", pszCachedIP);
+
+				if (strcmp(pszCachedIP, szIPAddr) != 0) {
+					updateDNS = true;
+				}
+			}
+
+			if (updateDNS) {
+				/*
+				** Update the DNS service...
+				*/
+				curl = curl_easy_init();
+
+				if (curl) {
+					curl_easy_setopt(curl, CURLOPT_URL, pszUpdateURL);
+					curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+					curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.42.0");
+					curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+					curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
 					
-			curl_easy_perform(curl);
-			
-			curl_easy_cleanup(curl);
-			
-			curl = NULL;
-		}
+					curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlGet_CallbackFunc);
+					curl_easy_setopt(curl, CURLOPT_WRITEDATA, &updateResponse);
+							
+					curl_easy_perform(curl);
+					
+					curl_easy_cleanup(curl);
+					
+					curl = NULL;
+				}
 
-		log.logStatus("Update service responded with: %s", updateResponse.c_str());
+				log.logStatus("Update service responded with: %s", updateResponse.c_str());
+			}
+		}
+		else {
+			log.logFatal("IP address not found in response from IP discovery service");
+		}
 
 		PosixThread::sleep(PosixThread::minutes, 5);
 	}
