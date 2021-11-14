@@ -1,1 +1,6 @@
+/build
+/dep
 .DS_Store
+ipaddr
+ipaddr.pid
+.vscode/c_cpp_properties.json
