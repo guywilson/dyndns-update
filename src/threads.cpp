@@ -179,6 +179,8 @@ void * IPDiscoveryThread::run()
 				if (strcmp(pszCachedIP, szIPAddr) != 0) {
 					updateDNS = true;
 				}
+
+				free(pszCachedIP);
 			}
 
 			if (updateDNS) {
