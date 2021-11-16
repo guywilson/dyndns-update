@@ -4,25 +4,22 @@
 # to the dynu.com DDNS server.
 #
 homedir=$1
-username=$2
-password=$3
 
 cachelocation=$homedir/.ipaddr
 cachefile=${cachelocation}/ipcache
 
+usernameprop=$homedir/username.prop
+passwordprop=$homedir/password.prop
+
 ipdiscoveryurl=https://www.ipchicken.com
 
 ipregex="(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-
-printf "Cached file: $cachefile\n"
-
 updateip=no
 
 #
 # Find our public ip address...
 #
 publicip=$(curl -s ${ipdiscoveryurl} | grep -E -o ${ipregex})
-#publicip="192.168.0.65"
 
 #
 # If the cache file does not exist, create it and upload the new ip
@@ -48,9 +45,10 @@ else
 fi
 
 if [ "$updateip" = "yes" ]; then
-    updateurl="https://api.dynu.com/nic/update?username=${username}&myip=${publicip}&password=${password}"
-    echo "$updateurl"
+    username=$(cat ${usernameprop})
+    password=$(cat ${passwordprop})
 
+    updateurl="https://api.dynu.com/nic/update?username=${username}&myip=${publicip}&password=${password}"
     response=$(curl -s "$updateurl")
 
     printf "ip update service responded with: $response\n"

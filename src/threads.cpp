@@ -62,6 +62,7 @@ void * IPDiscoveryThread::run()
 	const char *	pszUpdateBase;
 	const char *	pszUsername;
 	const char *	pszPassword;
+	const char *	pszCacheFilename;
 	char 			szFrequencyStr[64];
 	unsigned long	frequency;
 	string			response;
@@ -101,10 +102,10 @@ void * IPDiscoveryThread::run()
 		frequency = 5;
 	}
 
-	pszUsername = cfg.getValue("update.username");
-	pszPassword = cfg.getValue("update.password");
-
-	pszUpdateBase = cfg.getValue("update.baseurl");;
+	pszUsername = 		cfg.getValue("update.username");
+	pszPassword = 		cfg.getValue("update.password");
+	pszUpdateBase = 	cfg.getValue("update.baseurl");
+	pszCacheFilename = 	cfg.getValue("cache.filename");
 
 	pszUpdateURL = (char *)malloc(strlen(pszUpdateBase) + strlen(pszUsername) + strlen(pszPassword) + 16);
 
@@ -140,17 +141,13 @@ void * IPDiscoveryThread::run()
 			strcpy(szIPAddr, m.str(0).c_str());
 			log.logStatus("Found IP address: %s", szIPAddr);
 
-			sprintf(pszUpdateURL, pszUpdateBase, pszUsername, szIPAddr, pszPassword);
-
-			log.logDebug("Update IP url = %s", pszUpdateURL);
-
-			fpCache = fopen(cfg.getValue("cache.filename"), "rt");
+			fpCache = fopen(pszCacheFilename, "rt");
 
 			if (fpCache == NULL) {
 				/*
 				** Cache file does not exist, let's create it...
 				*/
-				fpCache = fopen(cfg.getValue("cache.filename"), "wt");
+				fpCache = fopen(pszCacheFilename, "wt");
 
 				if (fpCache == NULL) {
 					log.logFatal(
@@ -177,6 +174,25 @@ void * IPDiscoveryThread::run()
 				log.logStatus("Cached IP address read as %s", pszCachedIP);
 
 				if (strcmp(pszCachedIP, szIPAddr) != 0) {
+					/*
+					** Update the cache file with the new IP address...
+					*/
+					fpCache = fopen(pszCacheFilename, "wt");
+
+					if (fpCache == NULL) {
+						log.logFatal(
+							"Failed to create cache file %s with error %s", 
+							cfg.getValue("cache.filename"), 
+							strerror(errno));
+
+						exit(-1);
+					}
+
+					fwrite(szIPAddr, 1, strlen(szIPAddr), fpCache);
+					fwrite("\n", 1, 1, fpCache);
+
+					fclose(fpCache);
+
 					updateDNS = true;
 				}
 
@@ -184,6 +200,8 @@ void * IPDiscoveryThread::run()
 			}
 
 			if (updateDNS) {
+				sprintf(pszUpdateURL, pszUpdateBase, pszUsername, szIPAddr, pszPassword);
+
 				/*
 				** Update the DNS service...
 				*/
