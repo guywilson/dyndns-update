@@ -45,11 +45,9 @@ void printUsage(char * pszAppName)
 	printf("  Options:\n");
 	printf("   -h/?             Print this help\n");
 	printf("   -version         Print the program version\n");
-	printf("   -port device     Serial port device\n");
-	printf("   -baud baudrate   Serial port baud rate\n");
-	printf("   -cfg configfile  Specify the cfg file, default is ./webconfig.cfg\n");
+	printf("   -cfg configfile  Specify the cfg file, default is ./ipaddr.cfg\n");
 	printf("   -d               Daemonise this application\n");
-	printf("   -log  filename   Write logs to the file\n");
+	printf("   -log filename    Write logs to the file, this can be specified in the cfg file\n");
 	printf("\n");
 }
 
@@ -177,7 +175,7 @@ int main(int argc, char *argv[])
 	syslog(LOG_INFO, "Started %s", pszAppName);
 
 	if (pszConfigFileName == NULL) {
-		pszConfigFileName = strdup("ipaddr.cfg");
+		pszConfigFileName = strdup("./ipaddr.cfg");
 	}
 
 	ConfigManager & cfg = ConfigManager::getInstance();
