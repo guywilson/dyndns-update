@@ -1,12 +1,12 @@
 ###############################################################################
 #                                                                             #
-# MAKEFILE for IP upload                                                      #
+# MAKEFILE for DynDNS Update                                                  #
 #                                                                             #
 # (c) Guy Wilson 2021                                                         #
 #                                                                             #
 ###############################################################################
 
-# Version number for ipaddr
+# Version number for DynDNS-Update
 MAJOR_VERSION = 1
 MINOR_VERSION = 1
 
@@ -16,7 +16,7 @@ BUILD = build
 DEP = dep
 
 # What is our target
-TARGET = ipaddr
+TARGET = ddnsupd
 
 # Tools
 VBUILD = vbuild
@@ -71,12 +71,12 @@ $(DEP)/%.d: ;
 -include $(DEPFILES)
 
 install: $(TARGET)
-	cp $(TARGET) /usr/local/bin
-	cp ipaddr.cfg /usr/local/bin
-	chmod 600 /usr/local/bin/ipaddr.cfg
+	cp $(TARGET) /usr/local/sbin
+	cp $(TARGET).cfg $${HOME}
+	chmod 600 $${HOME}/$(TARGET).cfg
 
 version:
-	$(VBUILD) -incfile ipaddr.ver -template version.c.template -out $(SOURCE)/version.c -major $(MAJOR_VERSION) -minor $(MINOR_VERSION)
+	$(VBUILD) -incfile $(TARGET).ver -template version.c.template -out $(SOURCE)/version.c -major $(MAJOR_VERSION) -minor $(MINOR_VERSION)
 
 clean:
 	rm -r $(BUILD)
