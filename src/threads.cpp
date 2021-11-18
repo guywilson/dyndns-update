@@ -228,6 +228,8 @@ void * IPDiscoveryThread::run()
 				}
 
 				log.logStatus("Update service responded with: %s", updateResponse.c_str());
+
+				updateResponse.clear();
 			}
 		}
 		else {
