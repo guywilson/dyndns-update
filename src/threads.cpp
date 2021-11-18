@@ -182,7 +182,7 @@ void * IPDiscoveryThread::run()
 					if (fpCache == NULL) {
 						log.logFatal(
 							"Failed to create cache file %s with error %s", 
-							cfg.getValue("cache.filename"), 
+							pszCacheFilename, 
 							strerror(errno));
 
 						exit(-1);
@@ -192,6 +192,8 @@ void * IPDiscoveryThread::run()
 					fwrite("\n", 1, 1, fpCache);
 
 					fclose(fpCache);
+
+					log.logStatus("Updated cache file %s with new IP address [%s]", pszCacheFilename, szIPAddr);
 
 					updateDNS = true;
 				}
