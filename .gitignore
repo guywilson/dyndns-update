@@ -1,9 +1,9 @@
 /build
 /dep
 .DS_Store
-ipaddr
-ipaddr.pid
+ddnsupd
+ddnsupd.pid
 .vscode/c_cpp_properties.json
-ipaddr.cache
-ipaddr.log
+ddnsupd.cache
+ddnsupd.log
 *.prop
