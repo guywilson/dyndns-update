@@ -195,6 +195,9 @@ void * IPDiscoveryThread::run()
 
 					updateDNS = true;
 				}
+				else {
+					updateDNS = false;
+				}
 
 				free(pszCachedIP);
 			}
