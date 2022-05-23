@@ -5,11 +5,11 @@
 #
 homedir=$1
 
-cachelocation=$homedir/.ddnsupd
-cachefile=${cachelocation}/ipcache
+dyndnshome=$homedir/.ddnsupd
+cachefile=${dyndnshome}/ipcache
 
-usernameprop=$homedir/username.prop
-passwordprop=$homedir/password.prop
+usernameprop=${dyndnshome}/username.prop
+passwordprop=${dyndnshome}/password.prop
 
 ipdiscoveryurl=https://www.ipchicken.com
 
@@ -38,7 +38,7 @@ if test -f "$cachefile"; then
         updateip=yes
     fi
 else
-    mkdir -p "$cachelocation"
+    mkdir -p "$dyndnshome"
     printf "$publicip\n" > $cachefile
 
     updateip=yes
