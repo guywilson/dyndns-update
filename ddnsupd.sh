@@ -16,6 +16,8 @@ ipdiscoveryurl=https://www.ipchicken.com
 ipregex="(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
 updateip=no
 
+now="[$(date +'%Y-%m-%d %T')]"
+
 #
 # Find our public ip address...
 #
@@ -27,13 +29,13 @@ publicip=$(curl -s ${ipdiscoveryurl} | grep -E -o ${ipregex})
 if test -f "$cachefile"; then
     cachedip=$(cat ${cachefile})
 
-    printf "Cached ip address: $cachedip\n"
-    printf "Public ip from $ipdiscoveryurl is $publicip\n"
+    printf "%s Cached ip address: $cachedip\n" "$now"
+    printf "%s Public ip from $ipdiscoveryurl is $publicip\n" "$now"
 
     if [ "$cachedip" != "$publicip" ]; then
         printf "$publicip\n" > $cachefile
 
-        printf "Updated cached ip to $publicip\n"
+        printf "%s Updated cached ip to $publicip\n" "$now"
 
         updateip=yes
     fi
@@ -51,5 +53,5 @@ if [ "$updateip" = "yes" ]; then
     updateurl="https://api.dynu.com/nic/update?username=${username}&myip=${publicip}&password=${password}"
     response=$(curl -s "$updateurl")
 
-    printf "ip update service responded with: $response\n"
+    printf "%s ip update service responded with: $response\n" "$now"
 fi
