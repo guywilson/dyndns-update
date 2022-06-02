@@ -1,9 +1,0 @@
-/build
-/dep
-.DS_Store
-ddnsupd
-ddnsupd.pid
-.vscode/c_cpp_properties.json
-ddnsupd.cache
-ddnsupd.log
-*.prop
