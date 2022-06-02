@@ -1,7 +1,7 @@
 # dyndns-update
 Keep dynamic DNS server up to date
 
-This program is written to keep a www.dynu.com dynamic DNS record up to date. Tested on macos and Raspian for the RaspberryPi.
+This program is written to keep a www.dynu.com dynamic DNS record up to date. Tested on Raspian and Ubuntu for the RaspberryPi.
 
 This should be run via crontab or similar, a sample crontab entry (every 15 minutes) might look like
 
