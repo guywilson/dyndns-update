@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Script to update the dynamic ip address, taken from www.ipchicken.com
-# to the dynu.com DDNS server.
+# to the dynu.com DDNS server. Should be configured to run as a cron job
+# regularly (every 15 minutes is a good start).
 #
 homedir=$1
 
